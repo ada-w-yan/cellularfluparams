@@ -1,0 +1,20 @@
+Package: cellularfluparams
+Title: Infer Cellular Infection Parameters from In Vitro Influenza Data
+Version: 0.0.0.9000
+Authors@R: person("Ada W. C.", "Yan", email = "a.yan@imperial.ac.uk", role = c("aut", "cre"))
+Description: Reproduce results of paper: Cellular generation time in influenza infection
+Depends: R (>= 3.4.4)
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: ggplot2,
+    latex2exp,
+    lazymcmc,
+    odin,
+    coda,
+    magrittr,
+    data.table,
+    lhs,
+    xtable,
+    dplyr
+RoxygenNote: 6.1.1

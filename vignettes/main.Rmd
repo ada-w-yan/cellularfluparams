@@ -1,0 +1,205 @@
+---
+title: "Cellular reproduction numbers, cellular generation times and growth rates for influenza infection"
+author: "Ada Yan"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{main}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+This vignette contains code to reproduce the analysis and figures in the manuscript "Cellular reproduction numbers, cellular generation times and growth rates for influenza infection", using data and functions in the `cellularfluparams` package.
+
+## Parameter estimation
+
+```{r, eval = FALSE}
+library(cellularfluparams)
+```
+
+```{r, include = FALSE}
+devtools::load_all()
+```
+
+List the strains used in the study:
+```{r}
+strains <- determine_strains_for_exp("all", TRUE)
+```
+
+List the sensitivity analyses:
+```{r}
+sensitivity <- c("main", "loss", "n_L_n_I", "mc", "linear_p")
+```
+
+Estimate model parameters for each of the strains and sensitivity analyses:
+<!-- jobs <- obj$enqueue_bulk(pars, run_exp) -->
+```{r, eval = FALSE}
+pars <- expand.grid(strain = strains, sensitivity = sensitivity)
+apply_named_args(pars, 1, run_exp)
+```
+
+## Analyses
+
+We demonstrate the analyses of the parameter estimates required to make the plots, using the model in the main text.
+First, some housekeeping:
+```{r}
+sensitivity <- "main"
+# set directories to store results and figures  
+dirs <- set_dirs(sensitivity)
+# list the strains used in the study
+strains <- determine_strains_for_exp("all", TRUE)
+# set directories to store results and figures  
+data_dir <- get_strain_dir(dirs, strains)
+```
+
+We extract the maximum likelihood parameters for each strain and save them:
+```{r, eval = FALSE}
+filenames <- paste0(data_dir, "1.RData")
+invisible(lapply(filenames, get_and_save_max_LL_params))
+```
+
+We calculate the cellular infection parameters using samples from the posterior distribution for each strain, and save them:
+```{r, eval = FALSE}
+invisible(lapply(data_dir, extract_cell_infect_params))
+```
+
+We calculate the mean generation number at the time of peak viral load, using samples from the posterior distribution for each strain, and save them:
+```{r, eval = FALSE}
+invisible(lapply(strains, calc_mean_gen_no_by_strain, sensitivity = sensitivity))
+```
+
+We calculate 95% credible intervals for the mean generation number calculated above, and write them into a tex file for plotting:
+
+```{r, eval = FALSE}
+write_prctile_wrapper <- function(strain) {
+  data_dir <- get_strain_dir(dirs, strain)
+  filename <- paste0(data_dir, "mean_gen_no.rds")
+  mean_gen_no <- readRDS(filename)
+  mean_gen_no <- as.data.frame(mean_gen_no)
+  prctile_table <- print_prctiles(mean_gen_no, 
+                                  par_names_plot = "mean_gen_no")
+  filename <- sub(".rds", "_prctile.tex", filename, fixed = TRUE)
+  print(xtable::xtable(prctile_table),
+        sanitize.text.function = identity,
+        file = filename)
+  invisible(NULL)
+}
+
+lapply(strains, write_prctile_wrapper)
+```
+
+We calculate p-values for pairwise differences between the cellular infection parameters and mean generation numbers for teh different strains, and save them:
+
+```{r, eval = FALSE}
+p_value_wrapper <- function(data_source, sum_stat) {
+  strains <- determine_strains_for_exp(data_source, TRUE)
+  data_dir <- get_strain_dir(dirs, strains)
+  prctile_df <- pairwise_stats_tests(data_dir, sum_stat, data_source)
+  saveRDS(prctile_df, paste0(dirs[["figs"]], "prctile_df_", 
+                             sum_stat, "_", data_source,".rds"))
+  invisible(prctile_df)
+}
+
+pars <- expand.grid(data_source = c("WT", "PR8"),
+                    sum_stat = c("cell_infect_params", "mean_gen_no"))
+apply_named_args(pars, 1, p_value_wrapper)
+```
+
+Repeat the above for all of the sensitivity analyses:
+
+```{r}
+sensitivity <- c("main", "loss", "n_L_n_I", "mc", "linear_p")
+```
+## Plots
+
+### Main paper
+
+Once again, we demonstrate making the figures using the model in the main text.
+First, some housekeeping:
+```{r, eval = FALSE}
+sensitivity <- "main"
+  dirs <- set_dirs(sensitivity)
+  figs <- list(0)
+```
+  
+Fig. 1:
+```{r, eval = FALSE}
+data_source <- c("WT", "PR8")
+experiment <- c("sc_inf", "mc_inf", "mock")
+pars <- expand.grid(data_source = data_source, experiment = experiment)
+pars$sensitivity <- sensitivity
+figs[[1]] <- apply(pars, 1, function(x) do.call(plot_viral_load, as.list(x)))
+```
+
+Fig. 2A-C:
+```{r, eval = FALSE}
+  strains <- determine_strains_for_exp("all", TRUE)
+  data_dir <- get_strain_dir(dirs, strains)
+  
+  figs[[2]] <- plot_stats_across_strains("cell_infect_params", sensitivity = sensitivity)
+```
+
+
+Fig. 2D-E:
+```{r, eval = FALSE}
+  figs[[2]] <- c(list(figs[[2]]), lapply(data_source, plot_bivariate_density_multiple_strains, 
+              sensitivity = sensitivity))
+```
+  
+Fig. 3A-B:
+```{r, eval = FALSE}
+  figs[[3]] <- make_Fig3(sensitivity = sensitivity)
+```
+  
+Fig. 3C:
+```{r, eval = FALSE}
+figs[[3]] <- c(figs[[3]], list(plot_stats_across_strains("mean_gen_no", sensitivity)))
+```
+  
+Fig. 4:
+```{r, eval = FALSE}
+  constant_param <- c("gen_time", "log10_R_0", "r")
+  figs[[4]] <- lapply(constant_param, plot_gen_dist_vary_params)
+```
+
+Repeat the above for all of the sensitivity analyses:
+
+```{r}
+sensitivity <- c("main", "loss", "n_L_n_I", "mc", "linear_p")
+```
+
+### Supplementary figures
+
+Fig. S1:
+```{r, eval = FALSE}
+figs <- list(0)
+figs[[1]] <- lapply(c("sc_tot", "mc_tot"), plot_viral_load, data_source = "WT",
+            sensitivity = "main")
+```
+
+Fig. S3:
+```{r, eval = FALSE}
+strains <- determine_strains_for_exp("all", TRUE)
+sum_stat <- c("gen_time", "log10_R_0", "r")
+pars <- expand.grid(strain = strains, sum_stat = sum_stat)
+figs[[3]] <- list(apply_named_args(pars, 1, plot_cell_infect_param_histogram_by_strain),
+lapply(strains, plot_bivariate_density_single_strain))
+```
+
+Fig. S4
+```{r, eval = FALSE}
+calc_change_all_pars_sH1N1_H7N9_CI()
+figs[[4]] <- plot_change_all_pars_sH1N1_H7N9_CI()
+```
+
+Fig. S5
+```{r, eval = FALSE}
+figs[[5]] <- lapply(sum_stat, plot_gen_dist_fixed_gen_time)
+```
+
+Data S1
+```{r, eval = FALSE}
+sdata <- lapply(strains, make_corr_table)
+```
