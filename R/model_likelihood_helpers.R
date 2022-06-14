@@ -7,14 +7,14 @@
 #' @param x a numeric vector of quantiles.
 #' @param mean a vector of means.
 #' @param sd a vector of standard deviations.
-#' @param log a logical vector of length 1.  
+#' @param log.p a logical vector of length 1.  
 #' TRUE: return log of density, 
 #' FALSE: return density
 #' @return a numeric vector with the density of x in a log10normal distribution.
 #' The log10normal distribution in log10 space has mu =  mean and sigma = sd.
 
-dl10norm <- function(x, mean = 1, sd = 1, lower.tail = TRUE, log.p = FALSE){
-  dnorm(log10(x),mean,sd,log)
+dl10norm <- function(x, mean = 1, sd = 1, log.p = FALSE){
+  dnorm(log10(x),mean,sd,log.p)
 }
 
 #' Analogue for plnorm but in base 10

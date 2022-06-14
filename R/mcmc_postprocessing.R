@@ -111,8 +111,7 @@ postprocess_for_plotting <-function(filename,
       chain <- do.call(rbind,chain)
 
     invisible(postprocess_chain(chain, parTab, data, bind_summary_to_chain_partial,
-                                calc_residuals, get_prediction_ci_df, filenames[1], combined_flag = TRUE),
-              var_names = c("chain", "residuals"))
+                                calc_residuals, get_prediction_ci_df, filenames[1], combined_flag = TRUE))
   } else {
     chain_residual_list <- Map(function(x, y) postprocess_chain(x, parTab, data, bind_summary_to_chain_partial,
                                                                 calc_residuals, get_prediction_ci_df, y, combined_flag = FALSE),

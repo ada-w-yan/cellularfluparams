@@ -36,7 +36,7 @@ sensitivity <- c("main", "loss", "n_L_n_I", "mc", "linear_p")
 Estimate model parameters for each of the strains and sensitivity analyses:
 <!-- jobs <- obj$enqueue_bulk(pars, run_exp) -->
 ```{r, eval = FALSE}
-pars <- expand.grid(strain = strains, sensitivity = sensitivity)
+pars <- expand.grid(strain = strains, sensitivity = sensitivity, short = TRUE)
 apply_named_args(pars, 1, run_exp)
 ```
 
