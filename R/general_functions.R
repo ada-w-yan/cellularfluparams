@@ -244,7 +244,7 @@ interpolate_vector <- function(vec, n_div) {
 #' @param mod_path character vector of length 1: path to ODEs
 #' @return compiled model
 compile_model <- function(mod_path){
-  dir_name <- "R/"
+  dir_name <- "inst/odin/"
   if(substr(mod_path, 1, nchar(dir_name)) != dir_name) {
     mod_path <- paste0(dir_name, mod_path)
   }

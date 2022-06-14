@@ -34,15 +34,16 @@ CREATE_POSTERIOR_FUNC <-
         # gen <- compile_model("model_teiv_stages_e_dual.R")
         gen <- model_teiv_stages_e_dual
       } else if(p_over_time == "constant") {
-        gen <- model_teiv_stages_dual
+        # gen <- model_teiv_stages_dual
+        gen <- compile_model("model_teiv_stages_dual.R")
       } else {
         gen <- model_teiv_stages_dual_linear_p
       }
     }
     
     if (in_data[["mock"]]) {
-      # gen_mock <- compile_model("model_mock_yield.R")
-      gen_mock <- model_mock_yield
+      gen_mock <- compile_model("model_mock_yield.R")
+      # gen_mock <- model_mock_yield
     }
     
     # make function to transform a vector of parameter values into the

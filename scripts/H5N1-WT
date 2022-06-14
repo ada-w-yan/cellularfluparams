@@ -1,0 +1,22 @@
+#PBS -lselect=1:ncpus=3:mem=32gb
+#PBS -lwalltime=72:00:0
+
+# Load modules for any applications
+
+module load anaconda3/personal
+source activate r410
+
+# Change to the submission directory
+
+cd $PBS_O_WORKDIR
+
+# Run program
+
+export MC_CORES=3
+
+R CMD BATCH --slave $HOME/git_repos/cellularfluparams/scripts/H5N1-WT.R H5N1-WT.out
+
+mkdir $WORK/$PBS_JOBID
+cp * $WORK/$PBS_JOBID
+
+
