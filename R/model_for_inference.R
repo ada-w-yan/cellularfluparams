@@ -31,13 +31,14 @@ CREATE_POSTERIOR_FUNC <-
 
     if (in_data[["sc"]] || in_data[["mc"]]) {
       if (parTab[parTab$names == "n_I", "values"] == 1) {
-        # gen <- compile_model("model_teiv_stages_e_dual.R")
-        gen <- model_teiv_stages_e_dual
+        gen <- compile_model("model_teiv_stages_e_dual.R")
+        # gen <- model_teiv_stages_e_dual
       } else if(p_over_time == "constant") {
         # gen <- model_teiv_stages_dual
         gen <- compile_model("model_teiv_stages_dual.R")
       } else {
-        gen <- model_teiv_stages_dual_linear_p
+        # gen <- model_teiv_stages_dual_linear_p
+        gen <- compile_model("model_teiv_stages_dual_linear_p.R")
       }
     }
     

@@ -15,9 +15,7 @@ This vignette contains code to reproduce the analysis and figures in the manuscr
 
 ## Parameter estimation
 
-```{r, eval = FALSE}
-library(cellularfluparams)
-```
+Set the working directory to the root directory of the `cellularfluparams` package and run
 
 ```{r, include = FALSE}
 devtools::load_all()
